@@ -6,16 +6,14 @@ import cors from 'cors';
 
 const app = express();
 app.use(cors({
-  origin: [
-    "http://localhost:5173"
-  ],
+  origin: '*', // update later for security
   credentials: true
 }));
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: ["http://localhost:5173", "https://your-domain.com"],
+    origin: '*', // update later for security
     methods: ["GET", "POST"],
     credentials: true,
     transports: ['websocket', 'polling']
