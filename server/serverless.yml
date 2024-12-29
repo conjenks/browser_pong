@@ -1,0 +1,38 @@
+service: pong-game-server
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - 'execute-api:ManageConnections'
+          Resource: 
+            - 'arn:aws:execute-api:${aws:region}:${aws:accountId}:*/*/@connections/*'
+
+functions:
+  websocket:
+    handler: src/lambda.handler
+    events:
+      - websocket:
+          route: $connect
+          integration: lambda
+      - websocket:
+          route: $disconnect
+          integration: lambda
+      - websocket:
+          route: joinGame
+          integration: lambda
+      - websocket:
+          route: paddleMove
+          integration: lambda
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    websocketPort: 3001
