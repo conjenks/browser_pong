@@ -5,14 +5,20 @@ import { GameManager } from './src/services/gameManager.js';
 import cors from 'cors';
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173"
+  ],
+  credentials: true
+}));
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
     origin: ["http://localhost:5173", "https://your-domain.com"],
     methods: ["GET", "POST"],
-    credentials: true
+    credentials: true,
+    transports: ['websocket', 'polling']
   }
 });
 
