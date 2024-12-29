@@ -2,13 +2,16 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { GameManager } from './src/services/gameManager.js';
+import cors from 'cors';
 
 const app = express();
+app.use(cors());
+
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: ["http://localhost:5173", "https://your-production-domain.com"],
-    methods: ["GET", "POST", "OPTIONS"],
+    origin: ["http://localhost:5173", "https://your-domain.com"],
+    methods: ["GET", "POST"],
     credentials: true
   }
 });
@@ -17,14 +20,16 @@ const gameManager = new GameManager();
 
 io.on('connection', (socket) => {
   console.log('Player connected:', socket.id);
-
+  
   socket.on('joinGame', () => {
     const game = gameManager.joinGame(socket.id);
     socket.join(game.id);
     
     if (game.isReady()) {
       io.to(game.id).emit('gameStart', game.getState());
-      game.start();
+      game.start((state) => {
+        io.to(game.id).emit('gameState', state);
+      });
     } else {
       socket.emit('waiting');
     }
